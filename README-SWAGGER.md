@@ -1,42 +1,48 @@
-const express = require("express");
+# Implementação do Swagger na API
+
+## 1. Instalação das Dependências
+
+```bash
+npm install swagger-ui-express swagger-jsdoc
+```
+
+## 2. Configuração do Swagger
+
+Adicione no início do arquivo `index.js`:
+
+```javascript
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerOptions = require('./docs/extends');
 
-const app = express();
-const PORT = 3000;
+// Configuração do Swagger
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de Usuários',
+      version: '1.0.0',
+      description: 'API simples para gerenciar usuários'
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Servidor de desenvolvimento'
+      }
+    ]
+  },
+  apis: ['./index.js']
+};
 
 const specs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+```
 
+## 3. Documentação das Rotas
 
-app.use(express.json());
+Adicione comentários JSDoc antes de cada rota:
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Usuario:
- *       type: object
- *       required:
- *         - id
- *         - nome
- *       properties:
- *         id:
- *           type: integer
- *           description: ID único do usuário
- *         nome:
- *           type: string
- *           description: Nome do usuário
- *       example:
- *         id: 1
- *         nome: João
- */
-
-let usuarios = [
-  { id: 1, nome: "João" },
-  { id: 2, nome: "Maria" }
-];
-
+### GET /api/usuarios
+```javascript
 /**
  * @swagger
  * /api/usuarios:
@@ -53,11 +59,10 @@ let usuarios = [
  *               items:
  *                 $ref: '#/components/schemas/Usuario'
  */
-app.get("/api/usuarios", (req, res) => {
-  res.json(usuarios);
-});
+```
 
-
+### GET /api/usuarios/getById/:id
+```javascript
 /**
  * @swagger
  * /api/usuarios/getById/{id}:
@@ -80,16 +85,10 @@ app.get("/api/usuarios", (req, res) => {
  *       404:
  *         description: Usuário não encontrado
  */
-app.get("/api/usuarios/getById/:id", (req, res) => {
-    const { id } = req.params;
-    const index = usuarios.findIndex(u => u.id == id);
-    if (index > -1) {
-        res.json(usuarios[index]);
-    } else {
-        res.status(404).json({ message: "Usuário não encontrado" });    
-    }
-});
+```
 
+### POST /api/usuarios
+```javascript
 /**
  * @swagger
  * /api/usuarios:
@@ -113,12 +112,10 @@ app.get("/api/usuarios/getById/:id", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Usuario'
  */
-app.post("/api/usuarios", (req, res) => {
-  const novoUsuario = { id: usuarios.length + 1, ...req.body };
-  usuarios.push(novoUsuario);
-  res.status(201).json(novoUsuario);
-});
+```
 
+### PUT /api/usuarios/:id
+```javascript
 /**
  * @swagger
  * /api/usuarios/{id}:
@@ -146,17 +143,10 @@ app.post("/api/usuarios", (req, res) => {
  *       404:
  *         description: Usuário não encontrado
  */
-app.put("/api/usuarios/:id", (req, res) => {
-  const { id } = req.params;
-  const usuarioIndex = usuarios.findIndex(u => u.id == id);
-  if (usuarioIndex > -1) {
-    usuarios[usuarioIndex] = { id: Number(id), ...req.body };
-    res.json(usuarios[usuarioIndex]);
-  } else {
-    res.status(404).json({ message: "Usuário não encontrado" });
-  }
-});
+```
 
+### DELETE /api/usuarios/:id
+```javascript
 /**
  * @swagger
  * /api/usuarios/{id}:
@@ -173,15 +163,47 @@ app.put("/api/usuarios/:id", (req, res) => {
  *       204:
  *         description: Usuário removido
  */
-app.delete("/api/usuarios/:id", (req, res) => {
-  const { id } = req.params;
-  usuarios = usuarios.filter(u => u.id != id);
-  res.status(204).send();
-});
+```
 
+## 4. Schema do Usuário
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+Adicione no final do arquivo, antes das rotas:
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+```javascript
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Usuario:
+ *       type: object
+ *       required:
+ *         - id
+ *         - nome
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: ID único do usuário
+ *         nome:
+ *           type: string
+ *           description: Nome do usuário
+ *       example:
+ *         id: 1
+ *         nome: João
+ */
+```
+
+## 5. Acessando a Documentação
+
+Após implementar, acesse: `http://localhost:3000/api-docs`
+
+## 6. Estrutura Final do package.json
+
+```json
+{
+  "dependencies": {
+    "express": "^4.19.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
+  }
+}
+```
