@@ -8,78 +8,23 @@ const PORT = 3000;
 
 const specs = swaggerJsdoc(swaggerOptions);
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
+const JWT_SECRET = 'vai-corinthians';
+
 
 app.use(express.json());
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Usuario:
- *       type: object
- *       required:
- *         - id
- *         - nome
- *       properties:
- *         id:
- *           type: integer
- *           description: ID único do usuário
- *         nome:
- *           type: string
- *           description: Nome do usuário
- *       example:
- *         id: 1
- *         nome: João
- */
 
 let usuarios = [
   { id: 1, nome: "João" },
   { id: 2, nome: "Maria" }
 ];
 
-/**
- * @swagger
- * /api/usuarios:
- *   get:
- *     summary: Retorna todos os usuários
- *     tags: [Usuários]
- *     responses:
- *       200:
- *         description: Lista de usuários
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Usuario'
- */
 app.get("/api/usuarios", (req, res) => {
   res.json(usuarios);
 });
 
-
-/**
- * @swagger
- * /api/usuarios/getById/{id}:
- *   get:
- *     summary: Retorna um usuário por ID
- *     tags: [Usuários]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Usuário encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Usuario'
- *       404:
- *         description: Usuário não encontrado
- */
 app.get("/api/usuarios/getById/:id", (req, res) => {
     const { id } = req.params;
     const index = usuarios.findIndex(u => u.id == id);
@@ -90,62 +35,12 @@ app.get("/api/usuarios/getById/:id", (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/usuarios:
- *   post:
- *     summary: Cria um novo usuário
- *     tags: [Usuários]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nome:
- *                 type: string
- *     responses:
- *       201:
- *         description: Usuário criado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Usuario'
- */
 app.post("/api/usuarios", (req, res) => {
   const novoUsuario = { id: usuarios.length + 1, ...req.body };
   usuarios.push(novoUsuario);
   res.status(201).json(novoUsuario);
 });
 
-/**
- * @swagger
- * /api/usuarios/{id}:
- *   put:
- *     summary: Atualiza um usuário
- *     tags: [Usuários]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nome:
- *                 type: string
- *     responses:
- *       200:
- *         description: Usuário atualizado
- *       404:
- *         description: Usuário não encontrado
- */
 app.put("/api/usuarios/:id", (req, res) => {
   const { id } = req.params;
   const usuarioIndex = usuarios.findIndex(u => u.id == id);
@@ -157,22 +52,6 @@ app.put("/api/usuarios/:id", (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/usuarios/{id}:
- *   delete:
- *     summary: Remove um usuário
- *     tags: [Usuários]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       204:
- *         description: Usuário removido
- */
 app.delete("/api/usuarios/:id", (req, res) => {
   const { id } = req.params;
   usuarios = usuarios.filter(u => u.id != id);

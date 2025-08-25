@@ -1,3 +1,6 @@
+const schemas = require('../swagger/schemas');
+const paths = require('../swagger/paths');
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -11,9 +14,13 @@ const swaggerOptions = {
         url: 'http://localhost:3000',
         description: 'Servidor de desenvolvimento'
       }
-    ]
+    ],
+    paths: paths,
+    components: {
+      schemas: schemas
+    }
   },
-  apis: ['./index.js']
+  apis: []
 };
 
 module.exports = swaggerOptions;
