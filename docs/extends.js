@@ -7,20 +7,27 @@ const swaggerOptions = {
     info: {
       title: 'API de Usuários',
       version: '1.0.0',
-      description: 'API simples para gerenciar usuários'
+      description: 'API simples para gerenciar usuários com autenticação JWT'
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:3001',
         description: 'Servidor de desenvolvimento'
       }
     ],
     paths: paths,
     components: {
-      schemas: schemas
+      schemas: schemas,
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
     }
   },
-  apis: []
+  apis: ['./src/controllers/*.js']
 };
 
 module.exports = swaggerOptions;
