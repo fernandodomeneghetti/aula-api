@@ -4,7 +4,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerOptions = require('./docs/extends');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3001;
 
 const specs = swaggerJsdoc(swaggerOptions);
 
